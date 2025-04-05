@@ -20,8 +20,15 @@ class Presupuesto{
 
    }
    nuevoGasto(gasto){
-    this.gastos = [...this.gastos, gasto];
-    this.calcularRestante();
+    if (gasto.cantidad > this.restaante) {
+       ui.imprimirAlerta('Gasto no válido, supera el presupuesto', 'error');
+        return false;
+
+    }
+
+        this.gastos = [...this.gastos, gasto];
+        this.calcularRestante();
+        return true;
    }
     calcularRestante(){
      const gastado = this.gastos.reduce((total, gasto) => total + gasto.cantidad, 0);
@@ -112,7 +119,10 @@ class UI {
         } else if ((presupuesto / 2) > restaante) {
             restanteDiv.classList.remove('alert-success');
             restanteDiv.classList.add('alert-warning');
-        } 
+        } else {
+            restanteDiv.classList.remove('alert-danger', 'alert-warning');  
+            restanteDiv.classList.add('alert-success');
+        }
 
         if (restaante <= 0) {
             this.imprimirAlerta('El presupuesto se ha agotado', 'error');
@@ -121,19 +131,6 @@ class UI {
     }
 
     
-    eliminarGasto(id) {
-        //eliminar gasto del objeto
-        presupuesto.gastos = presupuesto.gastos.filter(gasto => gasto.id !== id);
-        console.log(presupuesto.gastos);
-        //eliminar gasto del HTML
-        this.agregarGastosLista(presupuesto.gastos);
-
-        presupuesto.calcularRestante();
-
-        //actualizar el presupuesto restante
-        this.comprobarPresupuesto(presupuesto);
-        this.actualizarRestante(presupuesto.restaante);
-    }
 
 }
 //intanciar
@@ -179,7 +176,9 @@ function agregarGasto(e) {
     //crear objeto gasto
     const gasto = { nombre, cantidad, id: Date.now() };
 
-    presupuesto.nuevoGasto(gasto);
+     if (!presupuesto.nuevoGasto(gasto)){
+        return;
+     }
 
     console.log(presupuesto.gastos);
     //
@@ -202,4 +201,20 @@ function agregarGasto(e) {
     formulario.reset();
 
 
+}
+
+
+//eliminar gasto
+function    eliminarGasto(id) {
+    //eliminar gasto del objeto
+    presupuesto.gastos = presupuesto.gastos.filter(gasto => gasto.id !== id);
+    console.log(presupuesto.gastos);
+    //eliminar gasto del HTML
+    this.agregarGastosLista(presupuesto.gastos);
+
+    presupuesto.calcularRestante();
+
+    //actualizar el presupuesto restante
+    this.comprobarPresupuesto(presupuesto);
+    this.actualizarRestante(presupuesto.restaante);
 }
